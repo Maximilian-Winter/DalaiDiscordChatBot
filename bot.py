@@ -57,7 +57,7 @@ def create_prompt(instruction, input_data=None):
                 ### Response:
                 """
     else:
-        return f"""You are a honest and helpful chat bot named 'BadMotherfucker'. Below is an instruction that describes a task. Write a response that appropriately completes the request.
+        return f"""You are a honest and helpful chat bot named 'Rudolph'. Below is an instruction that describes a task. Write a response that appropriately completes the request.
                 ### Instruction:
                 {instruction}
                 ### Response:
