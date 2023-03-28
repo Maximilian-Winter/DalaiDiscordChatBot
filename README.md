@@ -21,5 +21,5 @@
   DISCORD_TOKEN=AAAAAAAAAAAAAA.BBBBBBBBBBBBBB-CCCCCCCCCCCCCCCCCCCC.DDDDDDDDDDDDDDDD-EEEEEEEEEEEEEEEEEEEEEEEEEE
   DISCORD_GUILD=1234567890
 
-### 6.Install discord.py into your Python environment.
+### 6.Install discord.py, python-dotenv and python-socketio into your Python environment.
 ### 7.Run the bot.
