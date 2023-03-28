@@ -40,25 +40,27 @@ def result(data):
     output_text += data['response']
 
 
-def on_submit(prompt, last_response):
-    config['prompt'] = create_prompt(prompt, last_response)
+def on_submit(prompt, last_prompt, last_response):
+    config['prompt'] = create_prompt(prompt, last_prompt, last_response)
     config['id'] = "TS-" + str(int(time.time())) + "-" + str(int(random.random() * 100000))
     sio.emit('request', config)
     config['id'] = None
 
 
-def create_prompt(instruction, last_response=None):
+def create_prompt(instruction, last_prompt=None, last_response=None):
     if last_response:
-        return f"""You are a helpful and obedient chat bot, with the name 'BadMotherfucker'. You live in Max Power's Computer. Below is your last response followed by a new chat message from the user. Write a helpful and fitting response to it.
-                        ### Last Response:
+        return f"""You are a helpful and obedient chat bot, with the name 'Rudolph'. You live in a Computer. Below is the last user message and the last response from you, followed by a new chat message from the user. Write a helpful, coherent and fitting response to the new chat message.
+                        ### Last User Message:
+                        {last_prompt}
+                        ### Your Last Response:
                         {last_response}
-                        ### Message:
+                        ### New User Message:
                         {instruction}
                         ### Response:
                         """
     else:
-        return f"""You are a helpful and obedient chat bot, with the name 'BadMotherfucker'. You live in Max Power's Computer. Below is a chat message from a user. Write a helpful and fitting response to it.
-                ### Message:
+        return f"""You are a helpful and obedient chat bot, with the name 'Rudolph'. You live in a Computer. Below is a chat message from a user. Write a helpful and fitting response to it.
+                ### User Message:
                 {instruction}
                 ### Response:
                 """
@@ -75,9 +77,9 @@ config = {
     "n_predict": 800,
     "top_k": 40,
     "top_p": 0.9,
-    "temp": 0.8,
-    "repeat_last_n": 64,
-    "repeat_penalty": 1.3,
+    "temp": 0.2,
+    "repeat_last_n": 128,
+    "repeat_penalty": 1.6,
     "debug": False,
     "models": ["alpaca.7B", "alpaca.30B"],
     "model": "alpaca.7B"
@@ -112,6 +114,7 @@ intents.messages = True
 output_text = ""
 is_generating_chat_result = False
 old_output = ""
+old_prompt = ""
 
 def to_utf8_compatible(input_string):
     if isinstance(input_string, str):
@@ -151,6 +154,7 @@ async def chat(interaction: discord.Interaction, prompt: str):
     global is_generating_chat_result
     global output_text
     global old_output
+    global old_prompt
     marker = "### Response:"
     channel = interaction.channel
 
@@ -161,9 +165,9 @@ async def chat(interaction: discord.Interaction, prompt: str):
         await interaction.response.send_message(f"Please Wait!\n'{prompt}'")
 
     if old_output != "":
-        on_submit(prompt, old_output)
+        on_submit(prompt, old_prompt, old_output)
     else:
-        on_submit(prompt, None)
+        on_submit(prompt, None, None)
     is_generating_chat_result = True
     cmp_str = f'Compute Result'
     msg = await channel.send(cmp_str)
@@ -187,6 +191,7 @@ async def chat(interaction: discord.Interaction, prompt: str):
     output_text = ""
     is_generating_chat_result = False
     old_output = final_msg
+    old_prompt = prompt
     await channel.send(f"Response completed!")
 
 # Save the config to a file when the application is closed
