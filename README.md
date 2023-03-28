@@ -22,4 +22,4 @@
   DISCORD_GUILD=1234567890
 
 ### 6.Install discord.py into your Python environment.
-### 6.Run the bot.
+### 7.Run the bot.
