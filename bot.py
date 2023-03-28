@@ -40,25 +40,25 @@ def result(data):
     output_text += data['response']
 
 
-def on_submit(prompt):
-    config['prompt'] = create_prompt(prompt)
+def on_submit(prompt, last_response):
+    config['prompt'] = create_prompt(prompt, last_response)
     config['id'] = "TS-" + str(int(time.time())) + "-" + str(int(random.random() * 100000))
     sio.emit('request', config)
     config['id'] = None
 
 
-def create_prompt(instruction, input_data=None):
-    if input_data:
-        return f"""Below is an instruction that describes a task, paired with an input that provides further context. Write a response that appropriately completes the request.
-                ### Instruction:
-                {instruction}
-                ### Input:
-                {input_data}
-                ### Response:
-                """
+def create_prompt(instruction, last_response=None):
+    if last_response:
+        return f"""You are a helpful and obedient chat bot, with the name 'Rudolph'. You live in Max Power's Computer. Below is your last response followed by a new chat message from the user. Write a helpful and fitting response to it.
+                        ### Last Response:
+                        {last_response}
+                        ### Message:
+                        {instruction}
+                        ### Response:
+                        """
     else:
-        return f"""You are a honest and helpful chat bot named 'Rudolph'. Below is an instruction that describes a task. Write a response that appropriately completes the request.
-                ### Instruction:
+        return f"""You are a helpful and obedient chat bot, with the name 'Rudolph'. You live in Max Power's Computer. Below is a chat message from a user. Write a helpful and fitting response to it.
+                ### Message:
                 {instruction}
                 ### Response:
                 """
@@ -111,7 +111,7 @@ client = MyClient(intents=intents)
 intents.messages = True
 output_text = ""
 is_generating_chat_result = False
-
+old_output = ""
 
 def to_utf8_compatible(input_string):
     if isinstance(input_string, str):
@@ -150,6 +150,7 @@ async def chat(interaction: discord.Interaction, prompt: str):
     """Chat with MaxPowerChat"""
     global is_generating_chat_result
     global output_text
+    global old_output
     marker = "### Response:"
     channel = interaction.channel
 
@@ -157,9 +158,12 @@ async def chat(interaction: discord.Interaction, prompt: str):
         await interaction.response.send_message(f'Please Wait For The Other Response To Be Complete!')
         return False
     else:
-        await interaction.response.send_message(f'Please Wait!')
+        await interaction.response.send_message(f"Please Wait!\n'{prompt}'")
 
-    on_submit(prompt)
+    if old_output is not "":
+        on_submit(prompt, old_output)
+    else:
+        on_submit(prompt, None)
     is_generating_chat_result = True
     cmp_str = f'Compute Result'
     msg = await channel.send(cmp_str)
@@ -173,7 +177,8 @@ async def chat(interaction: discord.Interaction, prompt: str):
                     msg = await channel.send(cmp_str)
                 final_msg = to_utf8_compatible(extract_text(remove_x(output_text[response_start:].strip())))
                 await msg.edit(content=final_msg)
-
+    response_start = output_text.index(marker) + len(marker)
+    final_msg = to_utf8_compatible(extract_text(remove_x(output_text[response_start:].strip())))
     await msg.edit(content=to_utf8_compatible(extract_text(remove_x(final_msg))))
     embed = Embed(title="Chat:",
                   description=prompt, color=0x93C54B)
@@ -181,7 +186,8 @@ async def chat(interaction: discord.Interaction, prompt: str):
     # await msg.edit(embed=embed, content=None)
     output_text = ""
     is_generating_chat_result = False
-    await channel.send("Response completed!")
+    old_output = final_msg
+    await channel.send(f"Response completed!")
 
 # Save the config to a file when the application is closed
 with open("config.json", "w") as f:
