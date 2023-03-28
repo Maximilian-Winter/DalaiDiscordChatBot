@@ -3,7 +3,6 @@ import asyncio
 import os
 import logging
 from datetime import time
-import aiohttp
 
 import discord
 from discord import app_commands, message, Message
@@ -49,7 +48,7 @@ def on_submit(prompt, last_prompt, last_response):
 
 def create_prompt(instruction, last_prompt=None, last_response=None):
     if last_response:
-        return f"""You are a helpful and obedient chat bot, with the name 'Rudolph'. You live in a Computer. Below is the last user message and the last response from you, followed by a new chat message from the user. Write a helpful, coherent and fitting response to the new chat message.
+        return f"""You are a helpful and obedient chat bot, with the name 'Robert'. You live in a Computer. Below is the last user message and the last response from you, followed by a new chat message from the user. Write a helpful, coherent and fitting response to the new chat message.
                         ### Last User Message:
                         {last_prompt}
                         ### Your Last Response:
@@ -59,7 +58,7 @@ def create_prompt(instruction, last_prompt=None, last_response=None):
                         ### Response:
                         """
     else:
-        return f"""You are a helpful and obedient chat bot, with the name 'Rudolph'. You live in a Computer. Below is a chat message from a user. Write a helpful and fitting response to it.
+        return f"""You are a helpful and obedient chat bot, with the name 'Robert'. You live in a Computer. Below is a chat message from a user. Write a helpful and fitting response to it.
                 ### User Message:
                 {instruction}
                 ### Response:
@@ -67,19 +66,19 @@ def create_prompt(instruction, last_prompt=None, last_response=None):
 
 
 # Load config from local storage (use a file instead)
-#try:
+# try:
 #    with open("config.json", "r") as f:
 #        config = json.load(f)
-#except (FileNotFoundError, json.JSONDecodeError):
+# except (FileNotFoundError, json.JSONDecodeError):
 config = {
     "seed": -1,
     "threads": 24,
-    "n_predict": 800,
+    "n_predict": 200000,
     "top_k": 40,
     "top_p": 0.9,
-    "temp": 0.2,
-    "repeat_last_n": 128,
-    "repeat_penalty": 1.6,
+    "temp": 0.1,
+    "repeat_last_n": 64,
+    "repeat_penalty": 1.5,
     "debug": False,
     "models": ["alpaca.7B", "alpaca.30B"],
     "model": "alpaca.7B"
@@ -115,6 +114,7 @@ output_text = ""
 is_generating_chat_result = False
 old_output = ""
 old_prompt = ""
+
 
 def to_utf8_compatible(input_string):
     if isinstance(input_string, str):
@@ -194,12 +194,9 @@ async def chat(interaction: discord.Interaction, prompt: str):
     old_prompt = prompt
     await channel.send(f"Response completed!")
 
+
 # Save the config to a file when the application is closed
 with open("config.json", "w") as f:
     json.dump(config, f)
 
-
 client.run(TOKEN)
-
-
-
