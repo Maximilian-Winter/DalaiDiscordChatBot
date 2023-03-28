@@ -49,7 +49,7 @@ def on_submit(prompt, last_response):
 
 def create_prompt(instruction, last_response=None):
     if last_response:
-        return f"""You are a helpful and obedient chat bot, with the name 'Rudolph'. You live in Max Power's Computer. Below is your last response followed by a new chat message from the user. Write a helpful and fitting response to it.
+        return f"""You are a helpful and obedient chat bot, with the name 'BadMotherfucker'. You live in Max Power's Computer. Below is your last response followed by a new chat message from the user. Write a helpful and fitting response to it.
                         ### Last Response:
                         {last_response}
                         ### Message:
@@ -57,7 +57,7 @@ def create_prompt(instruction, last_response=None):
                         ### Response:
                         """
     else:
-        return f"""You are a helpful and obedient chat bot, with the name 'Rudolph'. You live in Max Power's Computer. Below is a chat message from a user. Write a helpful and fitting response to it.
+        return f"""You are a helpful and obedient chat bot, with the name 'BadMotherfucker'. You live in Max Power's Computer. Below is a chat message from a user. Write a helpful and fitting response to it.
                 ### Message:
                 {instruction}
                 ### Response:
@@ -160,7 +160,7 @@ async def chat(interaction: discord.Interaction, prompt: str):
     else:
         await interaction.response.send_message(f"Please Wait!\n'{prompt}'")
 
-    if old_output is not "":
+    if old_output != "":
         on_submit(prompt, old_output)
     else:
         on_submit(prompt, None)
